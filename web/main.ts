@@ -839,6 +839,31 @@ class GitGraphView {
 		this.selectedCommits.clear();
 	}
 
+	private selectCommitRange(fromHash: string, toHash: string) {
+		const fromIndex = this.commitLookup[fromHash];
+		const toIndex = this.commitLookup[toHash];
+
+		if (fromIndex === undefined || toIndex === undefined) return;
+
+		this.clearCommitSelection();
+
+		// Determine the range
+		const startIndex = Math.min(fromIndex, toIndex);
+		const endIndex = Math.max(fromIndex, toIndex);
+
+		// Select all commits in the range
+		for (let i = startIndex; i <= endIndex; i++) {
+			const commit = this.commits[i];
+			if (commit) {
+				this.selectedCommits.add(commit.hash);
+				const commitElem = document.querySelector(`tr.commit[data-id="${i}"]`);
+				if (commitElem) {
+					commitElem.classList.add('commitSelected');
+				}
+			}
+		}
+	}
+
 	private getSelectedCommitsArray(): string[] {
 		return Array.from(this.selectedCommits).sort((a, b) => {
 			const indexA = this.commitLookup[a];
@@ -2524,22 +2549,28 @@ class GitGraphView {
 				const mouseEvent = <MouseEvent>e;
 
 				if (mouseEvent.shiftKey) {
+					if (this.selectedCommits.size > 0) {
+						// Shift-click: select range from first selected commit
+						const anchorCommit = Array.from(this.selectedCommits)[0];
+						this.selectCommitRange(anchorCommit, commit.hash);
+					} else {
+						// No commits selected, just select this one
+						this.toggleCommitSelection(commit.hash, eventElem);
+					}
+				} else if (mouseEvent.ctrlKey || mouseEvent.metaKey) {
+					// Ctrl/Cmd-click: toggle individual commit selection
 					this.toggleCommitSelection(commit.hash, eventElem);
 				} else if (this.expandedCommit !== null) {
 					if (this.expandedCommit.commitHash === commit.hash) {
 						this.closeCommitDetails(true);
-					} else if (mouseEvent.ctrlKey || mouseEvent.metaKey) {
-						if (this.expandedCommit.compareWithHash === commit.hash) {
-							this.closeCommitComparison(true);
-						} else if (this.expandedCommit.commitElem !== null) {
-							this.loadCommitComparison(this.expandedCommit.commitElem, eventElem);
-						}
 					} else {
 						this.clearCommitSelection();
 						this.loadCommitDetails(eventElem);
 					}
 				} else {
+					// Regular click: select only this commit and load details
 					this.clearCommitSelection();
+					this.toggleCommitSelection(commit.hash, eventElem);
 					this.loadCommitDetails(eventElem);
 				}
 			}
