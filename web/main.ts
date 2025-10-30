@@ -981,15 +981,17 @@ class GitGraphView {
 				name: 'Commit Message',
 				default: newestCommitData.message,
 				placeholder: 'Enter the commit message for the squashed commit'
-			}],
+			}, { type: DialogInputType.Checkbox, name: 'Skip hooks (--no-verify)', value: false }],
 			'Yes, squash commits',
 			(values) => {
 				const commitMessage = <string>values[0];
+				const noVerify = <boolean>values[1];
 				runAction({
 					command: 'squashCommits',
 					repo: this.currentRepo,
 					commits: selectedCommits,
-					commitMessage: commitMessage
+					commitMessage: commitMessage,
+					noVerify: noVerify
 				}, 'Squashing Commits');
 				this.clearCommitSelection();
 			},
@@ -1033,10 +1035,11 @@ class GitGraphView {
 				name: 'Commit Message',
 				default: commit.message,
 				placeholder: 'Enter the new commit message'
-			}],
+			}, { type: DialogInputType.Checkbox, name: 'Skip hooks (--no-verify)', value: false }],
 			'Update Message',
 			(values) => {
 				const newMessage = <string>values[0];
+				const noVerify = <boolean>values[1];
 				if (newMessage.trim() === '') {
 					dialog.showError('Commit message cannot be empty.', null, null, null);
 					return;
@@ -1048,7 +1051,8 @@ class GitGraphView {
 					command: 'editCommitMessage',
 					repo: this.currentRepo,
 					commitHash: hash,
-					message: newMessage
+					message: newMessage,
+					noVerify: noVerify
 				}, 'Editing Commit Message');
 			},
 			target
@@ -1313,6 +1317,7 @@ class GitGraphView {
 					const multipleRemotes = this.gitRemotes.length > 1;
 					const inputs: DialogInput[] = [
 						{ type: DialogInputType.Checkbox, name: 'Set Upstream', value: true },
+						{ type: DialogInputType.Checkbox, name: 'Skip hooks (--no-verify)', value: false },
 						{
 							type: DialogInputType.Radio,
 							name: 'Push Mode',
@@ -1338,13 +1343,16 @@ class GitGraphView {
 					dialog.showForm('Are you sure you want to push the branch <b><i>' + escapeHtml(refName) + '</i></b>' + (multipleRemotes ? '' : ' to the remote <b><i>' + escapeHtml(this.gitRemotes[0]) + '</i></b>') + '?', inputs, 'Yes, push', (values) => {
 						const remotes = multipleRemotes ? <string[]>values.shift() : [this.gitRemotes[0]];
 						const setUpstream = <boolean>values[0];
+						const noVerify = <boolean>values[1];
+						const mode = <GG.GitPushBranchMode>values[2];
 						runAction({
 							command: 'pushBranch',
 							repo: this.currentRepo,
 							branchName: refName,
 							remotes: remotes,
 							setUpstream: setUpstream,
-							mode: <GG.GitPushBranchMode>values[1],
+							mode: mode,
+							noVerify: noVerify,
 							willUpdateBranchConfig: setUpstream && remotes.length > 0 && (this.gitConfig === null || typeof this.gitConfig.branches[refName] === 'undefined' || this.gitConfig.branches[refName].remote !== remotes[remotes.length - 1])
 						}, 'Pushing Branch');
 					}, target);
@@ -1634,9 +1642,10 @@ class GitGraphView {
 				onClick: () => {
 					dialog.showForm('Are you sure you want to pull the remote branch <b><i>' + escapeHtml(refName) + '</i></b> into ' + (this.gitBranchHead !== null ? '<b><i>' + escapeHtml(this.gitBranchHead) + '</i></b> (the current branch)' : 'the current branch') + '? If a merge is required:', [
 						{ type: DialogInputType.Checkbox, name: 'Create a new commit even if fast-forward is possible', value: this.config.dialogDefaults.pullBranch.noFastForward },
-						{ type: DialogInputType.Checkbox, name: 'Squash Commits', value: this.config.dialogDefaults.pullBranch.squash, info: 'Create a single commit on the current branch whose effect is the same as merging this remote branch.' }
+						{ type: DialogInputType.Checkbox, name: 'Squash Commits', value: this.config.dialogDefaults.pullBranch.squash, info: 'Create a single commit on the current branch whose effect is the same as merging this remote branch.' },
+						{ type: DialogInputType.Checkbox, name: 'Skip hooks (--no-verify)', value: false }
 					], 'Yes, pull', (values) => {
-						runAction({ command: 'pullBranch', repo: this.currentRepo, branchName: branchName, remote: remote, createNewCommit: <boolean>values[0], squash: <boolean>values[1] }, 'Pulling Branch');
+						runAction({ command: 'pullBranch', repo: this.currentRepo, branchName: branchName, remote: remote, createNewCommit: <boolean>values[0], squash: <boolean>values[1], noVerify: <boolean>values[2] }, 'Pulling Branch');
 					}, target);
 				}
 			}
@@ -2037,9 +2046,10 @@ class GitGraphView {
 			{ type: DialogInputType.Checkbox, name: 'Create a new commit even if fast-forward is possible', value: this.config.dialogDefaults.merge.noFastForward },
 			{ type: DialogInputType.Checkbox, name: 'Allow unrelated histories', value: this.config.dialogDefaults.merge.allowUnrelatedHistories, info: 'Allow merging branches from two completely different repositories or branches.' },
 			{ type: DialogInputType.Checkbox, name: 'Squash Commits', value: this.config.dialogDefaults.merge.squash, info: 'Create a single commit on the current branch whose effect is the same as merging this ' + actionOn.toLowerCase() + '.' },
-			{ type: DialogInputType.Checkbox, name: 'No Commit', value: this.config.dialogDefaults.merge.noCommit, info: 'The changes of the merge will be staged but not committed, so that you can review and/or modify the merge result before committing.' }
+			{ type: DialogInputType.Checkbox, name: 'No Commit', value: this.config.dialogDefaults.merge.noCommit, info: 'The changes of the merge will be staged but not committed, so that you can review and/or modify the merge result before committing.' },
+			{ type: DialogInputType.Checkbox, name: 'Skip hooks (--no-verify)', value: false }
 		], 'Yes, merge', (values) => {
-			runAction({ command: 'merge', repo: this.currentRepo, obj: obj, actionOn: actionOn, createNewCommit: <boolean>values[0], allowUnrelatedHistories: <boolean>values[1], squash: <boolean>values[2], noCommit: <boolean>values[3] }, 'Merging ' + actionOn);
+			runAction({ command: 'merge', repo: this.currentRepo, obj: obj, actionOn: actionOn, createNewCommit: <boolean>values[0], allowUnrelatedHistories: <boolean>values[1], squash: <boolean>values[2], noCommit: <boolean>values[3], noVerify: <boolean>values[4] }, 'Merging ' + actionOn);
 		}, target);
 	}
 

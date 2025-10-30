@@ -854,6 +854,7 @@ export interface RequestSquashCommits extends RepoRequest {
 	readonly command: 'squashCommits';
 	readonly commits: ReadonlyArray<string>;
 	readonly commitMessage: string;
+	readonly noVerify: boolean;
 }
 export interface ResponseSquashCommits extends ResponseWithErrorInfo {
 	readonly command: 'squashCommits';
@@ -1015,6 +1016,7 @@ export interface RequestMerge extends RepoRequest {
 	readonly allowUnrelatedHistories: boolean;
 	readonly squash: boolean;
 	readonly noCommit: boolean;
+	readonly noVerify: boolean;
 }
 export interface ResponseMerge extends ResponseWithErrorInfo {
 	readonly command: 'merge';
@@ -1086,6 +1088,7 @@ export interface RequestPullBranch extends RepoRequest {
 	readonly remote: string;
 	readonly createNewCommit: boolean;
 	readonly squash: boolean;
+	readonly noVerify: boolean;
 }
 export interface ResponsePullBranch extends ResponseWithErrorInfo {
 	readonly command: 'pullBranch';
@@ -1097,6 +1100,7 @@ export interface RequestPushBranch extends RepoRequest {
 	readonly remotes: string[];
 	readonly setUpstream: boolean;
 	readonly mode: GitPushBranchMode;
+	readonly noVerify: boolean;
 	readonly willUpdateBranchConfig: boolean;
 }
 export interface ResponsePushBranch extends ResponseWithMultiErrorInfo {
@@ -1200,6 +1204,7 @@ export interface RequestEditCommitMessage extends RepoRequest {
 	readonly command: 'editCommitMessage';
 	readonly commitHash: string;
 	readonly message: string;
+	readonly noVerify: boolean;
 }
 export interface ResponseEditCommitMessage extends ResponseWithErrorInfo {
 	readonly command: 'editCommitMessage';

@@ -341,7 +341,7 @@ export abstract class BaseGitGraphView extends Disposable {
 			case 'squashCommits':
 				this.sendMessage({
 					command: 'squashCommits',
-					error: await this.dataSource.squashCommits(msg.repo, (msg as RequestSquashCommits).commits, (msg as RequestSquashCommits).commitMessage)
+					error: await this.dataSource.squashCommits(msg.repo, (msg as RequestSquashCommits).commits, (msg as RequestSquashCommits).commitMessage, (msg as RequestSquashCommits).noVerify)
 				});
 				break;
 			case 'editRemote':
@@ -438,7 +438,7 @@ export abstract class BaseGitGraphView extends Disposable {
 				this.sendMessage({
 					command: 'merge',
 					actionOn: msg.actionOn,
-					error: await this.dataSource.merge(msg.repo, msg.obj, msg.actionOn, msg.createNewCommit, msg.allowUnrelatedHistories, msg.squash, msg.noCommit)
+					error: await this.dataSource.merge(msg.repo, msg.obj, msg.actionOn, msg.createNewCommit, msg.allowUnrelatedHistories, msg.squash, msg.noCommit, msg.noVerify)
 				});
 				break;
 			case 'openExtensionSettings':
@@ -486,14 +486,14 @@ export abstract class BaseGitGraphView extends Disposable {
 			case 'pullBranch':
 				this.sendMessage({
 					command: 'pullBranch',
-					error: await this.dataSource.pullBranch(msg.repo, msg.branchName, msg.remote, msg.createNewCommit, msg.squash)
+					error: await this.dataSource.pullBranch(msg.repo, msg.branchName, msg.remote, msg.createNewCommit, msg.squash, msg.noVerify)
 				});
 				break;
 			case 'pushBranch':
 				this.sendMessage({
 					command: 'pushBranch',
 					willUpdateBranchConfig: msg.willUpdateBranchConfig,
-					errors: await this.dataSource.pushBranchToMultipleRemotes(msg.repo, msg.branchName, msg.remotes, msg.setUpstream, msg.mode)
+					errors: await this.dataSource.pushBranchToMultipleRemotes(msg.repo, msg.branchName, msg.remotes, msg.setUpstream, msg.mode, msg.noVerify)
 				});
 				break;
 			case 'pushStash':
@@ -558,7 +558,7 @@ export abstract class BaseGitGraphView extends Disposable {
 			case 'editCommitMessage':
 				this.sendMessage({
 					command: 'editCommitMessage',
-					error: await this.dataSource.editCommitMessage(msg.repo, msg.commitHash, msg.message)
+					error: await this.dataSource.editCommitMessage(msg.repo, msg.commitHash, msg.message, msg.noVerify)
 				});
 				break;
 			case 'setGlobalViewState':
