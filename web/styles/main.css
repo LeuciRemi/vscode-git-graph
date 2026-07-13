@@ -841,12 +841,15 @@ body.tagLabelsRightAligned .gitRef.tag{
 /* Controls */
 
 #controls{
-	display:block;
+	display:flex;
+	flex-wrap:wrap;
+	align-items:center;
+	justify-content:center;
 	position: relative;
 	left:0;
 	right:0;
 	top:0;
-	padding:4px 132px 4px 0;
+	padding:4px 5px;
 	background-color: var(--vscode-editor-background);
 	border-bottom:1px solid rgba(128,128,128,0.5);
 	line-height:32px;
@@ -862,12 +865,14 @@ body.tagLabelsRightAligned .gitRef.tag{
 	z-index:12;
 }
 
-#repoControl, #branchControl, #showRemoteBranchesControl, #simplifyByDecorationControl{
-	display:inline-block;
+#repoControl, #branchControl, #authorControl, #showRemoteBranchesControl, #simplifyByDecorationControl{
+	display:inline-flex;
+	flex:0 0 auto;
+	align-items:center;
 	white-space:nowrap;
 	margin:0 10px;
 }
-#repoDropdown, #branchDropdown #authorDropdown{
+#repoDropdown, #branchDropdown, #authorDropdown{
 	margin-left:3px;
 }
 #showRemoteBranchesControl > .customCheckbox, #simplifyByDecorationControl > .customCheckbox{
@@ -885,33 +890,17 @@ body.tagLabelsRightAligned .gitRef.tag{
 }
 
 #currentBtn, #findBtn, #terminalBtn, #settingsBtn, #fetchBtn, #refreshBtn{
-	position:absolute;
-	top:50%;
+	position:relative;
+	flex:0 0 20px;
 	width:20px;
 	height:20px;
-	margin-top:-10px;
+	margin:6px 5px;
 	cursor:pointer;
 	-webkit-user-select:none;
 	user-select:none;
 }
-#currentBtn{
-	right:130px;
-}
-#findBtn{
-	right:100px;
-}
-#terminalBtn{
-	right:70px;
-}
-#settingsBtn{
-	right:40px;
-}
 #fetchBtn{
 	display:none;
-	right:40px;
-}
-#refreshBtn{
-	right:10px;
 }
 #refreshBtn.refreshing{
 	cursor:default;
@@ -954,21 +943,6 @@ body.tagLabelsRightAligned .gitRef.tag{
 	animation:loadingIconAnimation 2s linear infinite;
 }
 
-#controls.fetchSupported{
-	padding-right:180px;
-}
-#controls.fetchSupported #currentBtn{
-	right:160px;
-}
-#controls.fetchSupported #findBtn{
-	right:130px;
-}
-#controls.fetchSupported #terminalBtn{
-	right:100px;
-}
-#controls.fetchSupported #settingsBtn{
-	right:70px;
-}
 #controls.fetchSupported #fetchBtn{
 	display:block;
 }
