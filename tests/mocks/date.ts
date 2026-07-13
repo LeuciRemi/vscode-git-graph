@@ -1,4 +1,4 @@
-const RealDate = Date;
+const RealDate = global.Date;
 const InitialNow = 1587559258;
 
 export let now = InitialNow;
@@ -42,7 +42,7 @@ beforeEach(() => {
 	now = InitialNow;
 
 	// Override Date
-	Date = class extends RealDate {
+	global.Date = class extends RealDate {
 		constructor() {
 			super();
 			return new MockDate(now * 1000);
@@ -51,7 +51,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	Date = RealDate;
+	global.Date = RealDate;
 });
 
 export function setCurrentTime(newNow: number) {

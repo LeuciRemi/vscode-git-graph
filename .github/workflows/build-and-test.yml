@@ -13,11 +13,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [22.x, 24.x]
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-node@v1
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v6
       with:
-        node-version: '12.x'
+        node-version: ${{ matrix.node-version }}
     - run: npm install
     - run: npm run compile
-    - run: npm run test
+    - run: npm test -- --runInBand

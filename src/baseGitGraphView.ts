@@ -108,10 +108,10 @@ export abstract class BaseGitGraphView extends Disposable {
 			})
 		);
 
+		this.logger.log('Created Git Graph View' + (this.loadViewTo !== null ? ' (active repo: ' + this.loadViewTo.repo + ')' : ''));
+
 		// Render the content of the Webview
 		this.update();
-
-		this.logger.log('Created Git Graph View' + (this.loadViewTo !== null ? ' (active repo: ' + this.loadViewTo.repo + ')' : ''));
 	}
 
 	/**

@@ -24,14 +24,20 @@ let mockedWebviews: { panel: vscode.WebviewPanel, mocks: WebviewPanelMocks }[] =
 export const mocks = {
 	extensionContext: {
 		asAbsolutePath: jest.fn(),
+		environmentVariableCollection: {} as vscode.EnvironmentVariableCollection,
+		extensionMode: 3 as vscode.ExtensionMode,
 		extensionPath: '/path/to/extension',
+		extensionUri: {} as vscode.Uri,
 		globalState: {
 			get: jest.fn(),
 			update: jest.fn()
 		},
 		globalStoragePath: '/path/to/globalStorage',
+		globalStorageUri: {} as vscode.Uri,
 		logPath: '/path/to/logs',
+		logUri: {} as vscode.Uri,
 		storagePath: '/path/to/storage',
+		storageUri: {} as vscode.Uri,
 		subscriptions: [],
 		workspaceState: {
 			get: jest.fn(),
@@ -177,6 +183,7 @@ export const workspace = {
 		dispose: jest.fn()
 	})),
 	getConfiguration: jest.fn(() => mocks.workspaceConfiguration),
+	onDidChangeConfiguration: jest.fn((_: () => void) => ({ dispose: jest.fn() })),
 	onDidChangeWorkspaceFolders: jest.fn((_: () => Promise<void>) => ({ dispose: jest.fn() })),
 	onDidCloseTextDocument: jest.fn((_: () => void) => ({ dispose: jest.fn() })),
 	workspaceFolders: <{ uri: Uri, index: number }[] | undefined>undefined
