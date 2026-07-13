@@ -31,6 +31,8 @@ fs.readdirSync(path.join(SRC_DIRECTORY, ASKPASS_DIRECTORY)).forEach((fileName) =
 	if (fileName.endsWith('.sh')) {
 		// If the file is a shell script, read its contents and write it to the output directory
 		const scriptContents = fs.readFileSync(path.join(SRC_DIRECTORY, ASKPASS_DIRECTORY, fileName)).toString();
-		fs.writeFileSync(path.join(OUT_DIRECTORY, ASKPASS_DIRECTORY, fileName), scriptContents);
+		const outputPath = path.join(OUT_DIRECTORY, ASKPASS_DIRECTORY, fileName);
+		fs.writeFileSync(outputPath, scriptContents);
+		fs.chmodSync(outputPath, '755');
 	}
 });

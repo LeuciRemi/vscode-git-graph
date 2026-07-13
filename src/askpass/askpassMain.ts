@@ -8,6 +8,7 @@
 
 import * as fs from 'fs';
 import * as http from 'http';
+import { AskpassRequest, AskpassType } from './askpassManager';
 
 function fatal(err: any): void {
 	console.error('Missing or invalid credentials.');
@@ -15,13 +16,34 @@ function fatal(err: any): void {
 	process.exit(1);
 }
 
+export function createAskpassRequest(argv: string[], askpassType: AskpassType): AskpassRequest {
+	if (askpassType === 'https') {
+		if (argv.length !== 5) throw new Error('Wrong number of arguments');
+		return {
+			askpassType,
+			request: argv[2],
+			host: argv[4].substring(1, argv[4].length - 2)
+		};
+	}
+
+	if (argv.length < 3) throw new Error('Wrong number of arguments');
+	return { askpassType, request: argv.slice(2).join(' ') };
+}
+
 function main(argv: string[]): void {
-	if (argv.length !== 5) return fatal('Wrong number of arguments');
 	if (!process.env['VSCODE_GIT_GRAPH_ASKPASS_HANDLE']) return fatal('Missing handle');
 	if (!process.env['VSCODE_GIT_GRAPH_ASKPASS_PIPE']) return fatal('Missing pipe');
+	const askpassType = process.env['VSCODE_GIT_GRAPH_ASKPASS_TYPE'];
+	if (askpassType !== 'https' && askpassType !== 'ssh') return fatal('Missing or invalid type');
 
 	const output = process.env['VSCODE_GIT_GRAPH_ASKPASS_PIPE']!;
 	const socketPath = process.env['VSCODE_GIT_GRAPH_ASKPASS_HANDLE']!;
+	let request: AskpassRequest;
+	try {
+		request = createAskpassRequest(argv, askpassType);
+	} catch (err) {
+		return fatal(err);
+	}
 
 	const req = http.request({ socketPath, path: '/', method: 'POST' }, res => {
 		if (res.statusCode !== 200) return fatal('Bad status code: ' + res.statusCode);
@@ -41,8 +63,8 @@ function main(argv: string[]): void {
 	});
 
 	req.on('error', () => fatal('Error in request'));
-	req.write(JSON.stringify({ request: argv[2], host: argv[4].substring(1, argv[4].length - 2) }));
+	req.write(JSON.stringify(request));
 	req.end();
 }
 
-main(process.argv);
+if (require.main === module) main(process.argv);
